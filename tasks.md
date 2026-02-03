@@ -18,6 +18,7 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 - [ ] Install Swagger dependencies (@nestjs/swagger, swagger-ui-express)
 - [ ] Install JWT dependencies (@nestjs/jwt, @nestjs/passport, passport-jwt)
 - [ ] Install validation dependencies (class-validator, class-transformer)
+- [ ] Install Jest testing dependencies (@nestjs/testing, jest, @types/jest, ts-jest)
 - [ ] Install development dependencies (@types/node, ts-node, nodemon)
 
 ### Task 1.3: Application Configuration
@@ -331,6 +332,52 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 
 ---
 
+## Phase 15: Unit Testing (Jest)
+
+### Task 15.1: Jest Setup
+- [ ] Verify Jest is installed (included with NestJS)
+- [ ] Configure Jest for unit tests (exclude e2e)
+- [ ] Create test utilities and mocks
+
+### Task 15.2: Auth Service Unit Tests
+- [ ] Test login with valid credentials
+- [ ] Test login with invalid credentials
+- [ ] Test JWT token generation
+
+### Task 15.3: Users Service Unit Tests
+- [ ] Test getUserById (happy path)
+- [ ] Test validateCredentials (happy path)
+
+### Task 15.4: Products Service Unit Tests
+- [ ] Test createProduct (happy path)
+- [ ] Test getAllProducts (happy path)
+- [ ] Test updateProduct (happy path)
+
+### Task 15.5: Cart Service Unit Tests
+- [ ] Test addToCart (happy path)
+- [ ] Test getCart (happy path)
+- [ ] Test removeFromCart (happy path)
+
+### Task 15.6: Orders Service Unit Tests
+- [ ] Test checkout without discount (happy path)
+- [ ] Test checkout with valid discount (happy path)
+- [ ] Test updateOrderStatus (happy path)
+
+### Task 15.7: Discounts Service Unit Tests
+- [ ] Test generateDiscountCode (happy path)
+- [ ] Test validateDiscountCode (happy path)
+- [ ] Test auto-generate discount on nth order (happy path)
+
+### Task 15.8: Analytics Service Unit Tests
+- [ ] Test calculateSellerAnalytics (happy path)
+- [ ] Test calculateStoreAnalytics (happy path)
+
+### Task 15.9: Store Service Unit Tests
+- [ ] Test in-memory data operations
+- [ ] Test ID generation
+
+---
+
 ## Summary
 
 | Phase | Task Count | Description |
@@ -349,7 +396,8 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 | Phase 12 | 3 tasks | API Documentation (Swagger) |
 | Phase 13 | 5 tasks | Testing & Verification |
 | Phase 14 | 3 tasks | Final Polish |
-| **Total** | **42 tasks** | |
+| Phase 15 | 9 tasks | Unit Testing (Jest) |
+| **Total** | **51 tasks** | |
 
 ---
 

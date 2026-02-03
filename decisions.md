@@ -312,6 +312,35 @@ These decisions will be made during implementation as needed:
 
 ---
 
+### Decision 14: Unit Testing with Jest (NEW)
+**Decision:** Use Jest for unit testing with happy path focus only
+
+**Rationale:**
+- Jest is the default testing framework for NestJS
+- Comes pre-configured with NestJS CLI
+- Fast execution with in-memory storage
+- Happy path testing ensures core functionality works
+
+**Implementation Details:**
+- Unit tests for all services (happy path only)
+- No e2e tests required
+- Tests located alongside source files (*.spec.ts)
+- Mock external dependencies
+
+**Services to Test:**
+- AuthService: login, JWT generation
+- UsersService: getUserById, validateCredentials
+- ProductsService: CRUD operations
+- CartService: add, get, remove
+- OrdersService: checkout, status updates
+- DiscountsService: code generation, validation
+- AnalyticsService: metrics calculation
+- StoreService: data operations
+
+**Status:** ✅ Confirmed
+
+---
+
 ## Decision History Log
 
 | Date | Decision | Status | Notes |
@@ -327,6 +356,7 @@ These decisions will be made during implementation as needed:
 | 2026-02-03 | Swagger documentation | ✅ Confirmed | At /api-docs |
 | 2026-02-03 | Modular architecture | ✅ Confirmed | NestJS modules |
 | 2026-02-03 | class-validator | ✅ Confirmed | DTO validation |
+| 2026-02-03 | **Jest unit testing** | ✅ Confirmed | Happy path only |
 
 ---
 
