@@ -11,15 +11,15 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 - [x] Install NestJS CLI globally
 - [x] Generate new NestJS project using `nest new`
 - [x] Configure TypeScript settings (tsconfig.json)
-- [ ] Set up project folder structure following NestJS conventions
+- [x] Set up project folder structure following NestJS conventions
 
 ### Task 1.2: Dependency Installation
-- [ ] Install core NestJS packages (@nestjs/common, @nestjs/core, @nestjs/platform-express)
-- [ ] Install Swagger dependencies (@nestjs/swagger, swagger-ui-express)
-- [ ] Install JWT dependencies (@nestjs/jwt, @nestjs/passport, passport-jwt)
-- [ ] Install validation dependencies (class-validator, class-transformer)
-- [ ] Install Jest testing dependencies (@nestjs/testing, jest, @types/jest, ts-jest)
-- [ ] Install development dependencies (@types/node, ts-node, nodemon)
+- [x] Install core NestJS packages (@nestjs/common, @nestjs/core, @nestjs/platform-express)
+- [x] Install Swagger dependencies (@nestjs/swagger, swagger-ui-express)
+- [x] Install JWT dependencies (@nestjs/jwt, @nestjs/passport, passport-jwt)
+- [x] Install validation dependencies (class-validator, class-transformer)
+- [x] Install Jest testing dependencies (@nestjs/testing, jest, @types/jest, ts-jest)
+- [x] Install development dependencies (@types/node, ts-node, nodemon)
 
 ### Task 1.3: Application Configuration
 - [ ] Configure main.ts (bootstrap, Swagger setup, global pipes)
