@@ -22,10 +22,10 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 - [x] Install development dependencies (@types/node, ts-node, nodemon)
 
 ### Task 1.3: Application Configuration
-- [ ] Configure main.ts (bootstrap, Swagger setup, global pipes)
-- [ ] Set up environment configuration
-- [ ] Configure Swagger documentation (title, description, version, Bearer auth)
-- [ ] Set up global validation pipe
+- [x] Configure main.ts (bootstrap, Swagger setup, global pipes)
+- [x] Set up environment configuration
+- [x] Configure Swagger documentation (title, description, version, Bearer auth)
+- [x] Set up global validation pipe
 
 ---
 
