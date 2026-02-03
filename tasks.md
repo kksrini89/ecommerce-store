@@ -63,14 +63,14 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 ### Task 3.2: JWT Infrastructure
 - [x] Configure JWT module with secret key
 - [x] Set token expiration (e.g., 24 hours)
-- [ ] Create JWT validation logic (in Task 3.3)
+- [x] Create JWT validation logic (JwtAuthGuard)
 
 ### Task 3.3: Guards & Decorators
-- [ ] Create JwtAuthGuard (verifies JWT token)
-- [ ] Create RolesGuard (checks user roles)
-- [ ] Create @Roles() decorator
-- [ ] Create @CurrentUser() decorator
-- [ ] Create role-based decorators (@IsCustomer(), @IsSeller(), @IsAdmin())
+- [x] Create JwtAuthGuard (verifies JWT token)
+- [x] Create RolesGuard (checks user roles)
+- [x] Create @Roles() decorator
+- [x] Create @CurrentUser() decorator
+- [x] Create role-based decorators (@IsCustomer(), @IsSeller(), @IsAdmin())
 
 ---
 
