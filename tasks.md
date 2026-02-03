@@ -32,21 +32,21 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 ## Phase 2: Core Infrastructure
 
 ### Task 2.1: In-Memory Store Setup
-- [ ] Create StoreModule
-- [ ] Define TypeScript interfaces for all entities
-- [ ] Implement StoreService with Map-based storage
-- [ ] Seed 5 static users (2 customers, 2 sellers, 1 admin)
-- [ ] Initialize store configuration (n=3, percentage=10%)
-- [ ] Create ID generation utilities
+- [x] Create StoreModule
+- [x] Define TypeScript interfaces for all entities
+- [x] Implement StoreService with Map-based storage
+- [x] Seed 5 static users (2 customers, 2 sellers, 1 admin)
+- [x] Initialize store configuration (n=3, percentage=10%)
+- [x] Create ID generation utilities
 
 ### Task 2.2: Entity Interfaces
-- [ ] User interface (id, name, email, role, password)
-- [ ] Product interface (id, sellerId, name, description, price, stock, createdAt)
-- [ ] CartItem interface (id, userId, productId, quantity)
-- [ ] Order interface (id, userId, subtotal, discount, total, status, discountCodeId, timestamps)
-- [ ] OrderItem interface (id, orderId, productId, quantity, unitPrice, totalPrice)
-- [ ] DiscountCode interface (id, code, percentage, customerId, generatedBySellerId, isUsed, usedOnOrderId, timestamps)
-- [ ] StoreConfig interface (discountNValue, discountPercentage)
+- [x] User interface (id, name, email, role, password)
+- [x] Product interface (id, sellerId, name, description, price, stock, createdAt)
+- [x] CartItem interface (id, userId, productId, quantity)
+- [x] Order interface (id, userId, subtotal, discount, total, status, discountCodeId, timestamps)
+- [x] OrderItem interface (id, orderId, productId, quantity, unitPrice, totalPrice)
+- [x] DiscountCode interface (id, code, percentage, customerId, generatedBySellerId, isUsed, usedOnOrderId, timestamps)
+- [x] StoreConfig interface (discountNValue, discountPercentage)
 
 ---
 
