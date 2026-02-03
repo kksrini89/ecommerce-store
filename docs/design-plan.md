@@ -1,17 +1,65 @@
 # E-Commerce Backend API Design Plan (Updated)
 
 ## Table of Contents
-1. [Refined Understanding](#refined-understanding)
-2. [Entity Relationship Diagram](#entity-relationship-diagram)
-3. [Static Users Configuration](#static-users-configuration)
-4. [API Design](#api-design)
+1. [Tech Stack](#tech-stack)
+2. [Refined Understanding](#refined-understanding)
+3. [Data Flow Architecture](#data-flow-architecture)
+4. [Entity Relationship Diagram](#entity-relationship-diagram)
+5. [Static Users Configuration](#static-users-configuration)
+6. [API Design](#api-design)
    - [Authentication APIs](#authentication-apis)
    - [Customer APIs](#customer-apis)
    - [Seller APIs](#seller-apis)
    - [Admin APIs](#admin-apis)
-5. [In-Memory Data Store Structure](#in-memory-data-store-structure)
-6. [Request/Response Structures](#requestresponse-structures)
-7. [Implementation Todo List](#implementation-todo-list)
+7. [In-Memory Data Store Structure](#in-memory-data-store-structure)
+8. [Request/Response Structures](#requestresponse-structures)
+9. [Implementation Todo List](#implementation-todo-list)
+
+---
+
+## Tech Stack
+
+### Backend Framework
+- **NestJS** (v10+) - Progressive Node.js framework for building efficient, reliable, and scalable server-side applications
+- **TypeScript** - Primary language for type-safe development
+
+### Core Dependencies
+- **@nestjs/common** - NestJS core utilities
+- **@nestjs/core** - NestJS core functionality
+- **@nestjs/platform-express** - Express platform adapter
+- **@nestjs/swagger** - Swagger/OpenAPI integration for API documentation
+- **@nestjs/jwt** - JWT authentication utilities
+- **@nestjs/passport** - Passport.js integration for authentication
+- **passport-jwt** - JWT strategy for Passport
+
+### Development Tools
+- **@nestjs/cli** - NestJS CLI for project scaffolding
+- **typescript** - TypeScript compiler
+- **ts-node** - TypeScript execution environment
+- **nodemon** - Development auto-reload
+
+### Data Storage
+- **In-Memory Storage** - Maps for O(1) lookups (no database required)
+
+### API Documentation
+- **Swagger UI** - Interactive API documentation at `/api-docs`
+- **OpenAPI 3.0** specification auto-generated from decorators
+
+### Project Structure (NestJS Modules)
+```
+src/
+├── auth/              # Authentication module (login, JWT)
+├── users/             # Users module (static users)
+├── products/          # Products module
+├── cart/              # Shopping cart module
+├── orders/            # Orders module
+├── discounts/         # Discount codes module
+├── analytics/         # Analytics module (admin/seller)
+├── config/            # Store configuration module
+├── common/            # Guards, decorators, utilities
+├── store/             # In-memory data store
+└── main.ts            # Application entry point
+```
 
 ---
 
@@ -52,6 +100,187 @@
 6. **Reporting**:
    - Per seller analytics (seller views their own)
    - Store-wide analytics (admin views all)
+
+---
+
+## Data Flow Architecture
+
+### Request-Response Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         CLIENT REQUEST                              │
+│  POST /api/auth/login                                               │
+│  { userId: "customer1", password: "password123" }                   │
+└─────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                      AUTH CONTROLLER                                │
+│  - Validates credentials                                            │
+│  - Generates JWT token                                              │
+│  - Returns token + user info                                        │
+└─────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                   SUBSEQUENT REQUESTS                               │
+│  GET /api/products                                                  │
+│  Headers: Authorization: Bearer <token>                             │
+└─────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                      JWT AUTH GUARD                                 │
+│  - Extracts token from header                                       │
+│  - Verifies token signature                                         │
+│  - Attaches user to request context                                 │
+└─────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                      ROLES GUARD                                    │
+│  - Checks if user role matches required roles                       │
+│  - Returns 403 if unauthorized                                      │
+└─────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                     CONTROLLER METHOD                               │
+│  - Validates input DTO                                              │
+│  - Calls service layer                                              │
+└─────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                      SERVICE LAYER                                  │
+│  - Business logic                                                   │
+│  - Interacts with in-memory Store                                   │
+└─────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                    IN-MEMORY STORE                                  │
+│  - Maps for users, products, carts, orders, discountCodes           │
+│  - Static 5 users pre-loaded                                        │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Checkout Flow with Discount
+
+```
+Customer Action: POST /api/orders/checkout
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  1. Validate JWT & Get User  │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  2. Get Cart from In-Memory  │
+           │     Store (userId -> Cart[]) │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  3. Validate Stock for Each  │
+           │     Product in Cart          │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  4. Calculate Subtotal       │
+           │     sum(product.price * qty) │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  5. If Discount Code:        │
+           │     - Check code exists      │
+           │     - Verify customer owns it│
+           │     - Check not expired      │
+           │     - Check not already used │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  6. Apply Discount           │
+           │     discountAmount =         │
+           │       subtotal * % / 100     │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  7. Deduct Stock from        │
+           │     Products                 │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  8. Create Order +           │
+           │     OrderItems               │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  9. If Discount Used:        │
+           │     Mark code as used        │
+           │     Link to order            │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  10. Clear Cart              │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  11. Return Order Response   │
+           └──────────────────────────────┘
+```
+
+### Auto Discount Generation Flow
+
+```
+Seller Action: PUT /api/seller/orders/{id}/status
+               Body: { status: "completed" }
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  1. Validate JWT (Seller)    │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  2. Update Order Status      │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  3. If Status = "completed": │
+           │     Count customer's         │
+           │     completed orders         │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  4. Get Config: n value      │
+           │     (default = 3)            │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  5. If count % n === 0:      │
+           │     Generate Discount Code   │
+           └──────────────────────────────┘
+                          │
+                          ▼
+           ┌──────────────────────────────┐
+           │  6. Return Response with     │
+           │     Generated Code           │
+           └──────────────────────────────┘
+```
 
 ---
 
