@@ -8,9 +8,9 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 ## Phase 1: Project Setup & Configuration
 
 ### Task 1.1: NestJS Project Initialization
-- [ ] Install NestJS CLI globally
-- [ ] Generate new NestJS project using `nest new`
-- [ ] Configure TypeScript settings (tsconfig.json)
+- [x] Install NestJS CLI globally
+- [x] Generate new NestJS project using `nest new`
+- [x] Configure TypeScript settings (tsconfig.json)
 - [ ] Set up project folder structure following NestJS conventions
 
 ### Task 1.2: Dependency Installation
