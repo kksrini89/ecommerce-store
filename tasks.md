@@ -53,17 +53,17 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 ## Phase 3: Authentication & Authorization
 
 ### Task 3.1: Auth Module
-- [ ] Create AuthModule
-- [ ] Create AuthController
-- [ ] Create AuthService
-- [ ] Implement login endpoint (POST /auth/login)
-- [ ] JWT token generation with userId and role claims
-- [ ] Validate credentials against static users
+- [x] Create AuthModule
+- [x] Create AuthController
+- [x] Create AuthService
+- [x] Implement login endpoint (POST /auth/login)
+- [x] JWT token generation with userId and role claims
+- [x] Validate credentials against static users
 
 ### Task 3.2: JWT Infrastructure
-- [ ] Configure JWT module with secret key
-- [ ] Set token expiration (e.g., 24 hours)
-- [ ] Create JWT validation logic
+- [x] Configure JWT module with secret key
+- [x] Set token expiration (e.g., 24 hours)
+- [ ] Create JWT validation logic (in Task 3.3)
 
 ### Task 3.3: Guards & Decorators
 - [ ] Create JwtAuthGuard (verifies JWT token)
