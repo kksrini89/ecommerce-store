@@ -1,219 +1,440 @@
-# E-Commerce Backend API Design Plan
+# E-Commerce Backend API Design Plan (Updated)
 
 ## Table of Contents
 1. [Refined Understanding](#refined-understanding)
 2. [Entity Relationship Diagram](#entity-relationship-diagram)
-3. [API Design](#api-design)
+3. [Static Users Configuration](#static-users-configuration)
+4. [API Design](#api-design)
+   - [Authentication APIs](#authentication-apis)
    - [Customer APIs](#customer-apis)
    - [Seller APIs](#seller-apis)
    - [Admin APIs](#admin-apis)
-4. [In-Memory Data Store Structure](#in-memory-data-store-structure)
-5. [Request/Response Structures](#requestresponse-structures)
-6. [Implementation Todo List](#implementation-todo-list)
+5. [In-Memory Data Store Structure](#in-memory-data-store-structure)
+6. [Request/Response Structures](#requestresponse-structures)
+7. [Implementation Todo List](#implementation-todo-list)
 
 ---
 
 ## Refined Understanding
 
-Based on the assignment requirements and clarifications, here is the complete understanding:
+### Key Business Rules (UPDATED)
 
-### User Types
-1. **Customer**: Browses products, adds to cart, places orders
-2. **Seller**: Manages products, manages order status
-3. **Admin**: Views analytics and reports
+1. **Static Users Only (No Registration)**:
+   - 2 Customers: `customer1`, `customer2`
+   - 2 Sellers: `seller1`, `seller2`
+   - 1 Admin: `admin1`
+   - All pre-created, no user registration API
 
-### Key Business Rules
+2. **Authentication**:
+   - JWT-based authentication
+   - Login endpoint returns JWT token
+   - All API requests require `Authorization: Bearer <token>` header
+   - Token contains userId and role for authorization
 
-1. **Cart Management**: Session-based (in-memory), user-specific
-2. **Discount System**:
-   - Every **n=3** completed orders generates a 10% discount coupon
-   - **n value is configurable by seller**
-   - Coupon is user-specific (only the qualifying user receives it)
-   - Single-use only (once used, it expires)
-   - Has expiration date
-   - Generated only when order status changes to "completed"
-3. **Order Status**: Starts as "pending", only sellers can change status
-4. **Authentication**: Simple - request must include `userId` header
-5. **Pricing**: Static (product prices don't change)
-6. **Reporting**: Per seller and total store revenue
+3. **Discount System (Seller-Managed)**:
+   - **Seller** generates discount codes for their customers
+   - Every **n orders** (configurable by **admin**, default: 3) completed by a customer triggers auto-generation
+   - Discount percentage: **10%** (configurable by **admin**)
+   - **User-specific**: Only the customer who earned it can use the code
+   - **Single-use**: Once used on ANY order (pending/shipped/completed/cancelled), the code expires immediately
+   - **Expiration date**: Set by the seller when generating
 
-### Entities Required
+4. **Order Status Flow**:
+   - Starts as "pending"
+   - Only **sellers** can change status (not admin)
+   - Statuses: pending → confirmed → shipped → delivered → completed
+   - When status becomes "completed", check if discount code should be auto-generated
 
-1. **User**: id, name, email, role (customer/seller/admin)
-2. **Product**: id, seller_id, name, description, price, stock_quantity
-3. **CartItem**: id, user_id, product_id, quantity
-4. **Order**: id, user_id, subtotal, discount_amount, total_amount, status, created_at
-5. **OrderItem**: id, order_id, product_id, quantity, unit_price, total_price
-6. **DiscountCode**: id, code, discount_percentage, user_id, is_used, created_at, expires_at
-7. **DiscountCodeUsage**: id, discount_code_id, order_id, used_at
-8. **StoreConfig**: discount_n_value (configurable by admin/seller)
+5. **Discount Code Usage Rule**:
+   - Once a discount code is applied to an order (regardless of order status), it becomes unusable
+   - The code is permanently attached to that order
+
+6. **Reporting**:
+   - Per seller analytics (seller views their own)
+   - Store-wide analytics (admin views all)
+
+---
+
+## Static Users Configuration
+
+These 5 users are pre-created in the system:
+
+| User ID | Name | Email | Role | Password |
+|---------|------|-------|------|----------|
+| `customer1` | Customer One | customer1@store.com | customer | password123 |
+| `customer2` | Customer Two | customer2@store.com | customer | password123 |
+| `seller1` | Seller One | seller1@store.com | seller | password123 |
+| `seller2` | Seller Two | seller2@store.com | seller | password123 |
+| `admin1` | Admin One | admin1@store.com | admin | password123 |
+
+### JWT Token Structure
+```json
+{
+  "userId": "customer1",
+  "role": "customer",
+  "iat": 1706947200,
+  "exp": 1707033600
+}
+```
 
 ---
 
 ## Entity Relationship Diagram
 
-![ERD](ERD.png)
+### Mermaid ERD Diagram
+
+```mermaid
+erDiagram
+    User ||--o{ Order : places
+    User ||--o{ CartItem : has
+    User ||--o{ DiscountCode : receives
+    Seller ||--o{ Product : sells
+    Seller ||--o{ DiscountCode : generates
+    Product ||--o{ CartItem : in
+    Product ||--o{ OrderItem : ordered_in
+    Order ||--o{ OrderItem : contains
+    Order ||--o| DiscountCode : applies
+    
+    User {
+        string id PK
+        string name
+        string email UK
+        string role "customer|seller|admin"
+        string password
+    }
+    
+    Seller {
+        string id PK
+        string user_id FK
+        string business_name
+    }
+    
+    Product {
+        string id PK
+        string seller_id FK
+        string name
+        string description
+        decimal price
+        int stock_quantity
+        datetime created_at
+    }
+    
+    CartItem {
+        string id PK
+        string user_id FK
+        string product_id FK
+        int quantity
+    }
+    
+    Order {
+        string id PK
+        string user_id FK
+        decimal subtotal
+        decimal discount_amount
+        decimal total_amount
+        string status "pending|confirmed|shipped|delivered|completed|cancelled"
+        string discount_code_id FK
+        datetime created_at
+        datetime updated_at
+    }
+    
+    OrderItem {
+        string id PK
+        string order_id FK
+        string product_id FK
+        int quantity
+        decimal unit_price
+        decimal total_price
+    }
+    
+    DiscountCode {
+        string id PK
+        string code UK
+        decimal discount_percentage
+        string customer_id FK
+        string generated_by_seller_id FK
+        boolean is_used
+        string used_on_order_id FK
+        datetime created_at
+        datetime expires_at
+    }
+```
 
 ### Entity Descriptions
 
 | Entity | Description |
 |--------|-------------|
-| **User** | Stores user information with role (customer/seller/admin) |
-| **Seller** | Extension of User for seller-specific data |
-| **Product** | Items available for sale, linked to sellers |
-| **CartItem** | Temporary cart storage (in-memory) |
-| **Order** | Completed purchase orders |
-| **OrderItem** | Individual items within an order |
-| **DiscountCode** | Generated coupons for eligible users |
-| **DiscountCodeUsage** | Tracks usage of discount codes |
+| **User** | Pre-created users (5 static: 2 customers, 2 sellers, 1 admin) |
+| **Product** | Items sold by sellers |
+| **CartItem** | In-memory cart storage per user |
+| **Order** | Purchase orders with discount tracking |
+| **OrderItem** | Individual items in an order |
+| **DiscountCode** | User-specific codes generated by sellers |
+| **StoreConfig** | Admin-configurable settings (n value, discount %) |
 
 ---
 
 ## API Design
 
-### Customer APIs
+### Authentication APIs
+
+#### 1. Login
+```
+POST /api/auth/login
+```
+Authenticates user and returns JWT token.
+
+**Request:**
+```json
+{
+  "userId": "customer1",
+  "password": "password123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "customer1",
+    "name": "Customer One",
+    "role": "customer"
+  }
+}
+```
+
+---
+
+### Customer APIs (Require JWT Token)
+
+All customer APIs require: `Authorization: Bearer <token>`
 
 #### 1. View Products
 ```
 GET /api/products
 ```
-Returns list of all available products with stock.
+Returns list of all available products.
 
 #### 2. Add Item to Cart
 ```
 POST /api/cart/add
-Headers: userId
 ```
 Adds a product to the user's cart.
+
+**Request:**
+```json
+{
+  "productId": "prod-001",
+  "quantity": 2
+}
+```
 
 #### 3. View Cart
 ```
 GET /api/cart
-Headers: userId
 ```
 Returns current cart items with totals.
 
 #### 4. Remove from Cart
 ```
 DELETE /api/cart/:productId
-Headers: userId
 ```
 Removes item from cart.
 
 #### 5. Checkout
 ```
 POST /api/orders/checkout
-Headers: userId
 ```
 Places order with optional discount code.
+
+**Request:**
+```json
+{
+  "discountCode": "SAVE10-ABC123" // optional
+}
+```
+
+**Validation Rules:**
+- Discount code must belong to the logged-in customer
+- Discount code must not be already used
+- Discount code must not be expired
 
 #### 6. View My Orders
 ```
 GET /api/orders
-Headers: userId
 ```
-Returns customer's order history.
+Returns customer's order history with discount details.
 
-#### 7. View My Discount Codes
+#### 7. View My Available Discount Codes
 ```
 GET /api/discounts
-Headers: userId
 ```
-Returns available discount codes for the user.
+Returns unused, non-expired discount codes for the logged-in customer.
 
 ---
 
-### Seller APIs
+### Seller APIs (Require JWT Token + Seller Role)
+
+All seller APIs require: `Authorization: Bearer <token>` and seller role.
 
 #### 1. Create Product
 ```
 POST /api/seller/products
-Headers: userId (must be seller)
 ```
-Creates a new product.
+Creates a new product for this seller.
 
 #### 2. Update Product
 ```
 PUT /api/seller/products/:productId
-Headers: userId (must be seller)
 ```
-Updates product details.
+Updates seller's product details.
 
 #### 3. Delete Product
 ```
 DELETE /api/seller/products/:productId
-Headers: userId (must be seller)
 ```
-Removes a product.
+Removes seller's product.
 
 #### 4. View My Products
 ```
 GET /api/seller/products
-Headers: userId (must be seller)
 ```
-Returns all products by this seller.
+Returns all products created by this seller.
 
-#### 5. View Orders (for my products)
+#### 5. View Orders for My Products
 ```
 GET /api/seller/orders
-Headers: userId (must be seller)
 ```
-Returns orders containing seller's products.
+Returns orders containing this seller's products.
 
 #### 6. Update Order Status
 ```
 PUT /api/seller/orders/:orderId/status
-Headers: userId (must be seller)
-Body: { status: "completed" | "shipped" | "delivered" | "cancelled" }
 ```
-Updates order status. **When status changes to "completed", check if discount code should be generated.**
+Updates order status.
 
-#### 7. Configure Discount N Value
+**Request:**
+```json
+{
+  "status": "completed"
+}
 ```
-PUT /api/seller/config/discount-n
-Headers: userId (must be seller)
-Body: { n: number }
-```
-Configures the "n" value for discount generation (default: 3).
 
-#### 8. View Seller Analytics
+**Auto-Discount Generation:**
+- When status changes to "completed"
+- Count customer's completed orders
+- If count % n === 0, auto-generate discount code for that customer
+- Discount code format: `DISCOUNT-{userId}-{timestamp}`
+
+#### 7. Generate Manual Discount Code
+```
+POST /api/seller/discounts/generate
+```
+Manually generate a discount code for a specific customer.
+
+**Request:**
+```json
+{
+  "customerId": "customer1",
+  "expiresAt": "2026-03-03T00:00:00Z"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "discountCode": {
+    "code": "SAVE10-ABC123",
+    "discountPercentage": 10,
+    "customerId": "customer1",
+    "expiresAt": "2026-03-03T00:00:00Z",
+    "isUsed": false
+  }
+}
+```
+
+#### 8. View My Discount Codes
+```
+GET /api/seller/discounts
+```
+Returns all discount codes generated by this seller.
+
+#### 9. View Seller Analytics
 ```
 GET /api/seller/analytics
-Headers: userId (must be seller)
 ```
 Returns seller-specific metrics.
 
 ---
 
-### Admin APIs
+### Admin APIs (Require JWT Token + Admin Role)
 
-#### 1. Generate Discount Code (Manual)
+All admin APIs require: `Authorization: Bearer <token>` and admin role.
+
+#### 1. Configure Store Settings
 ```
-POST /api/admin/discounts/generate
-Headers: userId (must be admin)
-Body: { userId, discount_percentage, expires_at }
+PUT /api/admin/config
 ```
-Manually generate a discount code for a user.
+Configure global store settings.
+
+**Request:**
+```json
+{
+  "discountNValue": 3,        // Every nth order gets discount
+  "discountPercentage": 10    // Discount percentage
+}
+```
 
 #### 2. View Store Analytics
 ```
 GET /api/admin/analytics
-Headers: userId (must be admin)
 Query: ?startDate&endDate (optional)
 ```
 Returns store-wide metrics.
 
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "storeWide": {
+      "totalCustomers": 2,
+      "totalSellers": 2,
+      "totalProducts": 10,
+      "totalOrders": 25,
+      "totalItemsPurchased": 50,
+      "totalRevenue": 45000,
+      "totalDiscountCodesGenerated": 8,
+      "totalDiscountsGiven": 1200,
+      "discountNValue": 3,
+      "discountPercentage": 10
+    },
+    "perSeller": [
+      {
+        "sellerId": "seller1",
+        "sellerName": "Seller One",
+        "productsCount": 5,
+        "ordersCount": 15,
+        "itemsSold": 30,
+        "revenue": 25000
+      }
+    ]
+  }
+}
+```
+
 #### 3. List All Discount Codes
 ```
 GET /api/admin/discounts
-Headers: userId (must be admin)
 ```
-Returns all discount codes with usage stats.
+Returns all discount codes in the system.
 
 #### 4. List All Orders
 ```
 GET /api/admin/orders
-Headers: userId (must be admin)
 ```
 Returns all orders in the system.
 
@@ -221,65 +442,42 @@ Returns all orders in the system.
 
 ## In-Memory Data Store Structure
 
-Since we're using an in-memory store, we'll use JavaScript objects/Maps:
+### TypeScript Interfaces
 
 ```typescript
-// TypeScript interfaces for in-memory store
-
 interface InMemoryStore {
-  // Data storage
+  // Static users (pre-created)
   users: Map<string, User>;
+  
+  // Dynamic data
   products: Map<string, Product>;
   carts: Map<string, CartItem[]>; // userId -> CartItem[]
   orders: Map<string, Order>;
   orderItems: Map<string, OrderItem[]>; // orderId -> OrderItem[]
   discountCodes: Map<string, DiscountCode>;
-  discountCodeUsages: Map<string, DiscountCodeUsage>;
   
-  // Configuration
+  // Admin configuration
   storeConfig: {
-    discountNValue: number; // default: 3
+    discountNValue: number;    // default: 3
+    discountPercentage: number; // default: 10
   };
   
   // Helper counters for IDs
   counters: {
-    user: number;
     product: number;
     order: number;
     discountCode: number;
+    cartItem: number;
+    orderItem: number;
   };
 }
 
-// Data structure examples
-const store: InMemoryStore = {
-  users: new Map(),
-  products: new Map(),
-  carts: new Map(),
-  orders: new Map(),
-  orderItems: new Map(),
-  discountCodes: new Map(),
-  discountCodeUsages: new Map(),
-  storeConfig: {
-    discountNValue: 3
-  },
-  counters: {
-    user: 0,
-    product: 0,
-    order: 0,
-    discountCode: 0
-  }
-};
-```
-
-### Entity Interfaces
-
-```typescript
 interface User {
-  id: string;
+  id: string;           // customer1, customer2, seller1, seller2, admin1
   name: string;
   email: string;
   role: 'customer' | 'seller' | 'admin';
-  createdAt: Date;
+  password: string;     // hashed or plain for demo
 }
 
 interface Product {
@@ -306,8 +504,9 @@ interface Order {
   discountAmount: number;
   totalAmount: number;
   status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'completed' | 'cancelled';
-  discountCodeId?: string;
+  discountCodeId?: string;  // References the used discount code
   createdAt: Date;
+  updatedAt: Date;
 }
 
 interface OrderItem {
@@ -321,19 +520,57 @@ interface OrderItem {
 
 interface DiscountCode {
   id: string;
-  code: string;
-  discountPercentage: number;
-  userId: string;
+  code: string;                    // e.g., "SAVE10-ABC123"
+  discountPercentage: number;      // e.g., 10
+  customerId: string;              // The user who can use this code
+  generatedBySellerId: string;     // The seller who generated it
   isUsed: boolean;
+  usedOnOrderId?: string;          // The order that used this code
   createdAt: Date;
   expiresAt: Date;
 }
 
-interface DiscountCodeUsage {
-  id: string;
-  discountCodeId: string;
-  orderId: string;
-  usedAt: Date;
+// JWT Secret for token signing
+const JWT_SECRET = 'your-secret-key';
+```
+
+### Initial Data Seeding
+
+```typescript
+// Initialize store with static users
+function initializeStore(): InMemoryStore {
+  const store: InMemoryStore = {
+    users: new Map(),
+    products: new Map(),
+    carts: new Map(),
+    orders: new Map(),
+    orderItems: new Map(),
+    discountCodes: new Map(),
+    storeConfig: {
+      discountNValue: 3,
+      discountPercentage: 10
+    },
+    counters: {
+      product: 0,
+      order: 0,
+      discountCode: 0,
+      cartItem: 0,
+      orderItem: 0
+    }
+  };
+
+  // Seed static users
+  const users: User[] = [
+    { id: 'customer1', name: 'Customer One', email: 'customer1@store.com', role: 'customer', password: 'password123' },
+    { id: 'customer2', name: 'Customer Two', email: 'customer2@store.com', role: 'customer', password: 'password123' },
+    { id: 'seller1', name: 'Seller One', email: 'seller1@store.com', role: 'seller', password: 'password123' },
+    { id: 'seller2', name: 'Seller Two', email: 'seller2@store.com', role: 'seller', password: 'password123' },
+    { id: 'admin1', name: 'Admin One', email: 'admin1@store.com', role: 'admin', password: 'password123' }
+  ];
+
+  users.forEach(user => store.users.set(user.id, user));
+
+  return store;
 }
 ```
 
@@ -341,9 +578,47 @@ interface DiscountCodeUsage {
 
 ## Request/Response Structures
 
+### Authentication
+
+#### POST /api/auth/login
+**Request:**
+```json
+{
+  "userId": "customer1",
+  "password": "password123"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "customer1",
+    "name": "Customer One",
+    "email": "customer1@store.com",
+    "role": "customer"
+  }
+}
+```
+
+**Response (401 Unauthorized):**
+```json
+{
+  "success": false,
+  "message": "Invalid credentials"
+}
+```
+
+---
+
 ### Customer APIs
 
 #### POST /api/cart/add
+**Headers:** `Authorization: Bearer <token>`
+
 **Request:**
 ```json
 {
@@ -360,7 +635,7 @@ interface DiscountCodeUsage {
   "cart": {
     "items": [
       {
-        "id": "cart-001",
+        "id": "cart-1",
         "productId": "prod-001",
         "productName": "Laptop",
         "quantity": 2,
@@ -375,14 +650,16 @@ interface DiscountCodeUsage {
 ```
 
 #### POST /api/orders/checkout
+**Headers:** `Authorization: Bearer <token>`
+
 **Request:**
 ```json
 {
-  "discountCode": "DISC10-ABC123" // optional
+  "discountCode": "SAVE10-ABC123" // optional
 }
 ```
 
-**Response (201 Created):**
+**Response (201 Created - With Valid Discount):**
 ```json
 {
   "success": true,
@@ -402,7 +679,7 @@ interface DiscountCodeUsage {
     "discountAmount": 200,
     "totalAmount": 1800,
     "status": "pending",
-    "appliedDiscountCode": "DISC10-ABC123",
+    "appliedDiscountCode": "SAVE10-ABC123",
     "createdAt": "2026-02-03T10:00:00Z"
   }
 }
@@ -412,7 +689,47 @@ interface DiscountCodeUsage {
 ```json
 {
   "success": false,
-  "message": "Invalid or expired discount code"
+  "message": "Invalid discount code: Code has already been used"
+}
+```
+
+**Response (400 Bad Request - Expired Discount):**
+```json
+{
+  "success": false,
+  "message": "Invalid discount code: Code has expired"
+}
+```
+
+**Response (403 Forbidden - Not Owner):**
+```json
+{
+  "success": false,
+  "message": "Invalid discount code: This code is not assigned to you"
+}
+```
+
+#### GET /api/discounts
+**Headers:** `Authorization: Bearer <token>`
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "discountCodes": [
+    {
+      "code": "SAVE10-ABC123",
+      "discountPercentage": 10,
+      "expiresAt": "2026-03-03T00:00:00Z",
+      "isUsed": false
+    },
+    {
+      "code": "SAVE10-DEF456",
+      "discountPercentage": 10,
+      "expiresAt": "2026-03-15T00:00:00Z",
+      "isUsed": false
+    }
+  ]
 }
 ```
 
@@ -421,6 +738,8 @@ interface DiscountCodeUsage {
 ### Seller APIs
 
 #### PUT /api/seller/orders/:orderId/status
+**Headers:** `Authorization: Bearer <token>`
+
 **Request:**
 ```json
 {
@@ -428,7 +747,7 @@ interface DiscountCodeUsage {
 }
 ```
 
-**Response (200 OK):**
+**Response (200 OK - With Auto-Generated Discount):**
 ```json
 {
   "success": true,
@@ -439,28 +758,73 @@ interface DiscountCodeUsage {
     "updatedAt": "2026-02-03T10:30:00Z"
   },
   "discountGenerated": {
-    "code": "DISC10-XYZ789",
+    "code": "SAVE10-XYZ789",
     "discountPercentage": 10,
+    "customerId": "customer1",
     "expiresAt": "2026-03-03T10:30:00Z"
   }
 }
 ```
 
-*Note: When order status becomes "completed" and user has 3, 6, 9... completed orders, a discount code is auto-generated.*
+**Response (200 OK - No Discount Generated):**
+```json
+{
+  "success": true,
+  "message": "Order status updated to completed",
+  "order": {
+    "id": "order-001",
+    "status": "completed",
+    "updatedAt": "2026-02-03T10:30:00Z"
+  },
+  "discountGenerated": null
+}
+```
+
+#### POST /api/seller/discounts/generate
+**Headers:** `Authorization: Bearer <token>`
+
+**Request:**
+```json
+{
+  "customerId": "customer1",
+  "expiresAt": "2026-03-03T00:00:00Z"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Discount code generated successfully",
+  "discountCode": {
+    "code": "SAVE10-ABC123",
+    "discountPercentage": 10,
+    "customerId": "customer1",
+    "generatedBy": "seller1",
+    "expiresAt": "2026-03-03T00:00:00Z",
+    "isUsed": false,
+    "createdAt": "2026-02-03T10:00:00Z"
+  }
+}
+```
 
 #### GET /api/seller/analytics
+**Headers:** `Authorization: Bearer <token>`
+
 **Response (200 OK):**
 ```json
 {
   "success": true,
   "data": {
-    "totalProducts": 10,
-    "totalOrders": 25,
-    "totalItemsSold": 50,
-    "totalRevenue": 45000,
-    "averageOrderValue": 1800,
-    "discountCodesGenerated": 8,
-    "totalDiscountAmount": 1200
+    "totalProducts": 5,
+    "totalOrders": 15,
+    "totalItemsSold": 30,
+    "totalRevenue": 25000,
+    "averageOrderValue": 1666.67,
+    "discountCodesGenerated": 5,
+    "activeDiscountCodes": 3,
+    "usedDiscountCodes": 2,
+    "totalDiscountAmount": 500
   }
 }
 ```
@@ -469,30 +833,70 @@ interface DiscountCodeUsage {
 
 ### Admin APIs
 
+#### PUT /api/admin/config
+**Headers:** `Authorization: Bearer <token>`
+
+**Request:**
+```json
+{
+  "discountNValue": 5,
+  "discountPercentage": 15
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Store configuration updated",
+  "config": {
+    "discountNValue": 5,
+    "discountPercentage": 15
+  }
+}
+```
+
 #### GET /api/admin/analytics
+**Headers:** `Authorization: Bearer <token>`
+
 **Response (200 OK):**
 ```json
 {
   "success": true,
   "data": {
     "storeWide": {
-      "totalCustomers": 50,
-      "totalSellers": 5,
-      "totalProducts": 100,
-      "totalOrders": 200,
-      "totalItemsPurchased": 450,
-      "totalRevenue": 180000,
-      "totalDiscountCodes": 40,
-      "totalDiscountsGiven": 8000
+      "totalCustomers": 2,
+      "totalSellers": 2,
+      "totalProducts": 10,
+      "totalOrders": 25,
+      "totalItemsPurchased": 50,
+      "totalRevenue": 45000,
+      "totalDiscountCodesGenerated": 8,
+      "totalDiscountsGiven": 1200,
+      "averageOrderValue": 1800,
+      "config": {
+        "discountNValue": 3,
+        "discountPercentage": 10
+      }
     },
     "perSeller": [
       {
-        "sellerId": "seller-001",
-        "sellerName": "Tech Store",
-        "productsCount": 20,
-        "ordersCount": 50,
-        "itemsSold": 100,
-        "revenue": 50000
+        "sellerId": "seller1",
+        "sellerName": "Seller One",
+        "productsCount": 5,
+        "ordersCount": 15,
+        "itemsSold": 30,
+        "revenue": 25000,
+        "discountCodesGenerated": 5
+      },
+      {
+        "sellerId": "seller2",
+        "sellerName": "Seller Two",
+        "productsCount": 5,
+        "ordersCount": 10,
+        "itemsSold": 20,
+        "revenue": 20000,
+        "discountCodesGenerated": 3
       }
     ]
   }
@@ -504,56 +908,62 @@ interface DiscountCodeUsage {
 ## Implementation Todo List
 
 ### Phase 1: Project Setup
-- [ ] Initialize Node.js project with Express
-- [ ] Set up TypeScript configuration
-- [ ] Create project structure (routes, controllers, models, middleware)
-- [ ] Create in-memory data store
+- [ ] Initialize Node.js project with Express and TypeScript
+- [ ] Install dependencies: express, jsonwebtoken, @types/express, @types/jsonwebtoken
+- [ ] Create project structure (routes, controllers, middleware, models, utils)
+- [ ] Set up in-memory data store with static users
 
-### Phase 2: Core Entities & Middleware
-- [ ] Create User entity with roles
-- [ ] Create Product entity
-- [ ] Create authentication middleware (check userId header)
-- [ ] Create role-based access control middleware
-- [ ] Create validation middleware
+### Phase 2: Authentication & Middleware
+- [ ] Create JWT utility functions (generateToken, verifyToken)
+- [ ] Create authentication middleware (validate JWT token)
+- [ ] Create role-based authorization middleware
+- [ ] Implement POST /api/auth/login endpoint
 
-### Phase 3: Customer APIs
-- [ ] GET /api/products - List products
-- [ ] POST /api/cart/add - Add to cart
+### Phase 3: Static User Setup
+- [ ] Seed 5 static users (2 customers, 2 sellers, 1 admin)
+- [ ] Verify login works for all user types
+
+### Phase 4: Customer APIs
+- [ ] GET /api/products - List all products
+- [ ] POST /api/cart/add - Add item to cart (in-memory)
 - [ ] GET /api/cart - View cart
 - [ ] DELETE /api/cart/:productId - Remove from cart
 - [ ] POST /api/orders/checkout - Checkout with discount validation
-- [ ] GET /api/orders - View my orders
-- [ ] GET /api/discounts - View my discount codes
+- [ ] GET /api/orders - View order history
+- [ ] GET /api/discounts - View available discount codes
 
-### Phase 4: Seller APIs
+### Phase 5: Seller APIs
 - [ ] POST /api/seller/products - Create product
-- [ ] PUT /api/seller/products/:productId - Update product
-- [ ] DELETE /api/seller/products/:productId - Delete product
+- [ ] PUT /api/seller/products/:id - Update product
+- [ ] DELETE /api/seller/products/:id - Delete product
 - [ ] GET /api/seller/products - View my products
-- [ ] GET /api/seller/orders - View orders for my products
-- [ ] PUT /api/seller/orders/:orderId/status - Update order status
-- [ ] PUT /api/seller/config/discount-n - Configure discount N value
-- [ ] GET /api/seller/analytics - View seller analytics
+- [ ] GET /api/seller/orders - View orders with my products
+- [ ] PUT /api/seller/orders/:id/status - Update status + auto-generate discount
+- [ ] POST /api/seller/discounts/generate - Manual discount generation
+- [ ] GET /api/seller/discounts - View my generated codes
+- [ ] GET /api/seller/analytics - Seller metrics
 
-### Phase 5: Admin APIs
-- [ ] POST /api/admin/discounts/generate - Manual discount generation
+### Phase 6: Admin APIs
+- [ ] PUT /api/admin/config - Configure discount settings
 - [ ] GET /api/admin/analytics - Store-wide analytics
 - [ ] GET /api/admin/discounts - List all discount codes
 - [ ] GET /api/admin/orders - List all orders
 
-### Phase 6: Discount System Logic
-- [ ] Implement discount code generation logic
-- [ ] Track completed orders per user
-- [ ] Auto-generate discount on nth completed order
-- [ ] Validate discount codes at checkout
-- [ ] Mark discount codes as used after checkout
-- [ ] Handle discount code expiration
+### Phase 7: Discount System Logic
+- [ ] Implement auto-generate discount when order status = "completed"
+- [ ] Count customer's completed orders
+- [ ] Generate user-specific discount code (only that user can use)
+- [ ] Validate discount code at checkout (owner check, expiry check, usage check)
+- [ ] Mark discount code as used immediately when applied to order
+- [ ] Handle discount code expiration logic
 
-### Phase 7: Testing & Documentation
-- [ ] Test all APIs with sample data
-- [ ] Document API endpoints
-- [ ] Create sample requests/responses
-- [ ] Verify discount system works correctly
+### Phase 8: Testing & Validation
+- [ ] Test all 5 static users can login
+- [ ] Test customer can add to cart and checkout
+- [ ] Test discount code validation (owner, expiry, usage)
+- [ ] Test seller can change order status and trigger auto-discount
+- [ ] Test admin can configure settings and view analytics
+- [ ] Verify discount code becomes unusable after first use
 
 ---
 
@@ -561,31 +971,146 @@ interface DiscountCodeUsage {
 
 ### Discount Code Generation Algorithm
 ```typescript
-function onOrderStatusChangeToCompleted(order: Order) {
-  const userId = order.userId;
-  const completedOrders = countCompletedOrders(userId);
+function onOrderStatusChangeToCompleted(order: Order, sellerId: string) {
+  const customerId = order.userId;
+  const completedOrders = countCompletedOrdersForCustomer(customerId);
   const n = store.storeConfig.discountNValue;
+  const percentage = store.storeConfig.discountPercentage;
   
+  // Check if this is the nth completed order
   if (completedOrders % n === 0) {
-    const discountCode = generateDiscountCode(userId, 10);
-    // Associate with user
+    const discountCode = generateDiscountCode({
+      customerId,
+      generatedBySellerId: sellerId,
+      discountPercentage: percentage,
+      expiresAt: calculateExpirationDate() // e.g., 30 days from now
+    });
+    return discountCode;
   }
+  return null;
 }
 ```
 
-### Cart to Order Flow
-1. Validate cart is not empty
-2. Validate all products have sufficient stock
-3. Validate discount code (if provided)
-4. Calculate totals (subtotal, discount, final total)
-5. Deduct stock from products
-6. Create Order and OrderItems
-7. Clear cart
-8. Return order confirmation
+### Discount Code Validation at Checkout
+```typescript
+function validateDiscountCode(code: string, customerId: string) {
+  const discount = store.discountCodes.get(code);
+  
+  if (!discount) {
+    return { valid: false, error: 'Invalid discount code' };
+  }
+  
+  if (discount.customerId !== customerId) {
+    return { valid: false, error: 'This code is not assigned to you' };
+  }
+  
+  if (discount.isUsed) {
+    return { valid: false, error: 'Code has already been used' };
+  }
+  
+  if (new Date() > discount.expiresAt) {
+    return { valid: false, error: 'Code has expired' };
+  }
+  
+  return { valid: true, discount };
+}
+```
 
-### In-Memory Persistence Strategy
-Since we're using in-memory storage:
-- Data will be lost on server restart
-- For development/testing, we can seed initial data
-- Each entity should have auto-incrementing IDs
-- Use Map for O(1) lookups by ID
+### Checkout Flow with Discount
+```typescript
+function checkout(customerId: string, discountCode?: string) {
+  // 1. Get cart
+  const cart = store.carts.get(customerId);
+  if (!cart || cart.length === 0) {
+    throw new Error('Cart is empty');
+  }
+  
+  // 2. Validate stock
+  for (const item of cart) {
+    const product = store.products.get(item.productId);
+    if (product.stockQuantity < item.quantity) {
+      throw new Error(`Insufficient stock for ${product.name}`);
+    }
+  }
+  
+  // 3. Calculate subtotal
+  let subtotal = 0;
+  for (const item of cart) {
+    const product = store.products.get(item.productId);
+    subtotal += product.price * item.quantity;
+  }
+  
+  // 4. Apply discount if provided
+  let discountAmount = 0;
+  let appliedDiscountCode = null;
+  
+  if (discountCode) {
+    const validation = validateDiscountCode(discountCode, customerId);
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+    
+    const discount = validation.discount;
+    discountAmount = (subtotal * discount.discountPercentage) / 100;
+    appliedDiscountCode = discountCode;
+    
+    // Mark discount as used IMMEDIATELY
+    discount.isUsed = true;
+    discount.usedOnOrderId = orderId;
+  }
+  
+  // 5. Calculate total
+  const totalAmount = subtotal - discountAmount;
+  
+  // 6. Deduct stock
+  for (const item of cart) {
+    const product = store.products.get(item.productId);
+    product.stockQuantity -= item.quantity;
+  }
+  
+  // 7. Create order
+  const order = createOrder({
+    userId: customerId,
+    subtotal,
+    discountAmount,
+    totalAmount,
+    status: 'pending',
+    discountCodeId: appliedDiscountCode
+  });
+  
+  // 8. Clear cart
+  store.carts.set(customerId, []);
+  
+  return order;
+}
+```
+
+### Order Status Update (Seller Only)
+```typescript
+function updateOrderStatus(orderId: string, newStatus: string, sellerId: string) {
+  const order = store.orders.get(orderId);
+  
+  // Verify seller owns products in this order
+  const orderItems = store.orderItems.get(orderId);
+  const hasSellerProduct = orderItems.some(item => {
+    const product = store.products.get(item.productId);
+    return product.sellerId === sellerId;
+  });
+  
+  if (!hasSellerProduct) {
+    throw new Error('You can only update orders containing your products');
+  }
+  
+  order.status = newStatus;
+  order.updatedAt = new Date();
+  
+  let generatedDiscount = null;
+  
+  // Auto-generate discount on completed status
+  if (newStatus === 'completed') {
+    generatedDiscount = onOrderStatusChangeToCompleted(order, sellerId);
+  }
+  
+  return { order, generatedDiscount };
+}
+```
