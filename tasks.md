@@ -77,12 +77,12 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 ## Phase 4: Users Module
 
 ### Task 4.1: Users Module Setup
-- [ ] Create UsersModule
-- [ ] Create UsersService
-- [ ] Create UsersController (if needed)
-- [ ] Implement getUserById()
-- [ ] Implement getAllUsers() (admin only)
-- [ ] Implement validateCredentials()
+- [x] Create UsersModule
+- [x] Create UsersService
+- [x] Create UsersController (if needed)
+- [x] Implement getUserById()
+- [x] Implement getAllUsers() (admin only)
+- [x] Implement validateCredentials()
 
 ---
 
