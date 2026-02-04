@@ -200,54 +200,54 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 ## Phase 10: Analytics Module
 
 ### Task 10.1: Analytics Module Setup
-- [ ] Create AnalyticsModule
-- [ ] Create AnalyticsController
-- [ ] Create AnalyticsService
+- [x] Create AnalyticsModule
+- [x] Create AnalyticsController
+- [x] Create AnalyticsService
 
 ### Task 10.2: Analytics Calculations
-- [ ] Calculate total revenue
-- [ ] Calculate items sold
-- [ ] Calculate order counts
-- [ ] Calculate discount codes generated
-- [ ] Calculate total discounts given
-- [ ] Per-seller breakdowns
-- [ ] Date range filtering
+- [x] Calculate total revenue
+- [x] Calculate items sold
+- [x] Calculate order counts
+- [x] Calculate discount codes generated
+- [x] Calculate total discounts given
+- [x] Per-seller breakdowns
+- [x] Date range filtering
 
 ### Task 10.3: Seller Analytics API
-- [ ] GET /seller/analytics - View seller metrics
+- [x] GET /seller/analytics - View seller metrics
 
 ### Task 10.4: Admin Analytics API
-- [ ] GET /admin/analytics - Store-wide metrics
+- [x] GET /admin/analytics - Store-wide metrics
 
 ---
 
 ## Phase 11: Business Logic Implementation
 
 ### Task 11.1: Checkout Logic
-- [ ] Validate cart not empty
-- [ ] Validate stock availability
-- [ ] Validate discount code (if provided)
-- [ ] Calculate subtotal
-- [ ] Calculate discount amount
-- [ ] Calculate total
-- [ ] Deduct stock
-- [ ] Create order and order items
-- [ ] Mark discount as used
-- [ ] Clear cart
+- [x] Validate cart not empty
+- [x] Validate stock availability
+- [x] Validate discount code (if provided)
+- [x] Calculate subtotal
+- [x] Calculate discount amount
+- [x] Calculate total
+- [x] Deduct stock
+- [x] Create order and order items
+- [x] Mark discount as used
+- [x] Clear cart
 
 ### Task 11.2: Auto Discount Generation Logic
-- [ ] Trigger on order status = "completed"
-- [ ] Count customer's completed orders
-- [ ] Check if count % n === 0
-- [ ] Generate discount code
-- [ ] Set customerId to the qualifying customer
-- [ ] Set generatedBySellerId to the seller who completed the order
-- [ ] Set expiration date (provided by seller)
+- [x] Trigger on order status = "completed"
+- [x] Count customer's completed orders
+- [x] Check if count % n === 0
+- [x] Generate discount code
+- [x] Set customerId to the qualifying customer
+- [x] Set generatedBySellerId to the seller who completed the order
+- [x] Set expiration date (30 days default)
 
 ### Task 11.3: Order Status Management
-- [ ] Status transition validation
-- [ ] Only sellers can update status
-- [ ] Validation that seller owns products in order
+- [x] Status transition validation
+- [x] Only sellers can update status
+- [x] Validation that seller owns products in order
 
 ---
 
