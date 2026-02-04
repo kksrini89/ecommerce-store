@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { StoreService } from '../store/store.service';
 import { CartService } from '../cart/cart.service';
+import { DiscountsService } from '../discounts/discounts.service';
 import {
   Order,
   OrderItem,
@@ -28,6 +29,7 @@ export class OrdersService {
   constructor(
     private readonly storeService: StoreService,
     private readonly cartService: CartService,
+    private readonly discountsService: DiscountsService,
   ) {}
 
   getOrdersByUser(userId: string): Order[] {
@@ -75,30 +77,22 @@ export class OrdersService {
 
     // Apply discount if provided
     if (checkoutDto.discountCode) {
-      const discountCode = this.storeService.getDiscountCodeByCode(
+      const validation = this.discountsService.validateDiscountCode(
         checkoutDto.discountCode,
+        userId,
       );
 
-      if (!discountCode) {
-        throw new BadRequestException('Invalid discount code');
+      if (!validation.valid) {
+        throw new BadRequestException(validation.message);
       }
 
-      if (discountCode.customerId !== userId) {
-        throw new BadRequestException(
-          'This discount code is not assigned to you',
-        );
-      }
-
-      if (discountCode.isUsed) {
-        throw new BadRequestException('Discount code has already been used');
-      }
-
-      if (new Date() > discountCode.expiresAt) {
-        throw new BadRequestException('Discount code has expired');
-      }
+      const discountCode = validation.discountCode!;
 
       // Calculate discount
-      discountAmount = (subtotal * discountCode.discountPercentage) / 100;
+      discountAmount = this.discountsService.calculateDiscountAmount(
+        discountCode,
+        subtotal,
+      );
       appliedDiscountCode = discountCode;
     }
 

@@ -153,32 +153,32 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 ## Phase 8: Discounts Module
 
 ### Task 8.1: Discounts Module Setup
-- [ ] Create DiscountsModule
-- [ ] Create DiscountsController
-- [ ] Create DiscountsService
-- [ ] DTOs: GenerateDiscountDto, ApplyDiscountDto
+- [x] Create DiscountsModule
+- [x] Create DiscountsController
+- [x] Create DiscountsService
+- [x] DTOs: GenerateDiscountDto, ApplyDiscountDto
 
 ### Task 8.2: Discount Code Validation
-- [ ] validateDiscountCode() function
-- [ ] Check code exists
-- [ ] Check customer ownership
-- [ ] Check not expired
-- [ ] Check not already used
-- [ ] Calculate discount amount
+- [x] validateDiscountCode() function
+- [x] Check code exists
+- [x] Check customer ownership
+- [x] Check not expired
+- [x] Check not already used
+- [x] Calculate discount amount
 
 ### Task 8.3: Customer Discount APIs
-- [ ] GET /discounts - View my available discount codes
-- [ ] Apply discount at checkout
+- [x] GET /discounts - View my available discount codes
+- [x] Apply discount at checkout
 
 ### Task 8.4: Seller Discount APIs
-- [ ] POST /seller/discounts/generate - Manual generation
-- [ ] GET /seller/discounts - View generated codes
-- [ ] Auto-generate on nth completed order (in OrderService)
-- [ ] Code generation utility (format: SAVE10-{timestamp})
-- [ ] Set expiration date
+- [x] POST /seller/discounts/generate - Manual generation
+- [x] GET /seller/discounts - View generated codes
+- [x] Auto-generate on nth completed order (in OrderService)
+- [x] Code generation utility (format: SAVE10-{timestamp})
+- [x] Set expiration date
 
 ### Task 8.5: Admin Discount APIs
-- [ ] GET /admin/discounts - List all discount codes
+- [x] GET /admin/discounts - List all discount codes
 
 ---
 
