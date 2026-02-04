@@ -5,6 +5,7 @@ import { StoreModule } from './store/store.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ProductsModule } from './products/products.module';
     AuthModule,     // Exports JwtModule for other modules
     UsersModule,    // Can now use JwtService from AuthModule
     ProductsModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [AppService],

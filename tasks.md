@@ -97,28 +97,28 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 - [x] DTOs: CreateProductDto, UpdateProductDto
 
 ### Task 5.2: Seller Product Management
-- [ ] POST /seller/products (create product)
-- [ ] PUT /seller/products/:id (update product)
-- [ ] DELETE /seller/products/:id (delete product)
-- [ ] GET /seller/products (view my products)
-- [ ] Stock validation logic
+- [x] POST /seller/products (create product)
+- [x] PUT /seller/products/:id (update product)
+- [x] DELETE /seller/products/:id (delete product)
+- [x] GET /seller/products (view my products)
+- [x] Stock validation logic
 
 ---
 
 ## Phase 6: Cart Module
 
 ### Task 6.1: Cart Module Setup
-- [ ] Create CartModule
-- [ ] Create CartController
-- [ ] Create CartService
-- [ ] DTOs: AddToCartDto
+- [x] Create CartModule
+- [x] Create CartController
+- [x] Create CartService
+- [x] DTOs: AddToCartDto
 
 ### Task 6.2: Cart Operations
-- [ ] POST /cart/add - Add item to cart
-- [ ] GET /cart - View cart with product details and totals
-- [ ] DELETE /cart/:productId - Remove item from cart
-- [ ] Cart validation (stock check)
-- [ ] Calculate cart totals (subtotal)
+- [x] POST /cart/add - Add item to cart
+- [x] GET /cart - View cart with product details and totals
+- [x] DELETE /cart/:productId - Remove item from cart
+- [x] Cart validation (stock check)
+- [x] Calculate cart totals (subtotal)
 
 ---
 
