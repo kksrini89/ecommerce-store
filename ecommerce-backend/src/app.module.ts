@@ -8,6 +8,7 @@ import { ProductsModule } from './products/products.module';
 import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
 import { DiscountsModule } from './discounts/discounts.module';
+import { ConfigModule } from './config/config.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DiscountsModule } from './discounts/discounts.module';
     CartModule,
     OrdersModule,
     DiscountsModule,
+    ConfigModule,
   ],
   controllers: [AppController],
   providers: [AppService],

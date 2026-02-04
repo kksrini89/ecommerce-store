@@ -185,15 +185,15 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 ## Phase 9: Config Module
 
 ### Task 9.1: Config Module Setup
-- [ ] Create ConfigModule
-- [ ] Create ConfigController
-- [ ] Create ConfigService
-- [ ] StoreConfig entity and operations
+- [x] Create ConfigModule
+- [x] Create ConfigController
+- [x] Create ConfigService
+- [x] StoreConfig entity and operations
 
 ### Task 9.2: Admin Configuration APIs
-- [ ] PUT /admin/config - Update store configuration
-- [ ] Get/set discountNValue
-- [ ] Get/set discountPercentage
+- [x] PUT /admin/config - Update store configuration
+- [x] Get/set discountNValue
+- [x] Get/set discountPercentage
 
 ---
 
