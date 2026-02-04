@@ -125,28 +125,28 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 ## Phase 7: Orders Module
 
 ### Task 7.1: Orders Module Setup
-- [ ] Create OrdersModule
-- [ ] Create OrdersController
-- [ ] Create OrdersService
-- [ ] DTOs: CheckoutDto, UpdateOrderStatusDto
+- [x] Create OrdersModule
+- [x] Create OrdersController
+- [x] Create OrdersService
+- [x] DTOs: CheckoutDto, UpdateOrderStatusDto
 
 ### Task 7.2: Customer Order APIs
-- [ ] POST /orders/checkout - Checkout cart
-- [ ] GET /orders - View my orders
-- [ ] Checkout validation (cart not empty, stock available)
-- [ ] Calculate order totals with discount logic
-- [ ] Create Order and OrderItems
-- [ ] Deduct stock from products
-- [ ] Clear cart after checkout
+- [x] POST /orders/checkout - Checkout cart
+- [x] GET /orders - View my orders
+- [x] Checkout validation (cart not empty, stock available)
+- [x] Calculate order totals with discount logic
+- [x] Create Order and OrderItems
+- [x] Deduct stock from products
+- [x] Clear cart after checkout
 
 ### Task 7.3: Seller Order APIs
-- [ ] GET /seller/orders - View orders containing seller's products
-- [ ] PUT /seller/orders/:id/status - Update order status
-- [ ] Validate seller owns products in order
-- [ ] Status transitions validation
+- [x] GET /seller/orders - View orders containing seller's products
+- [x] PUT /seller/orders/:id/status - Update order status
+- [x] Validate seller owns products in order
+- [x] Status transitions validation
 
 ### Task 7.4: Admin Order APIs
-- [ ] GET /admin/orders - List all orders
+- [x] GET /admin/orders - List all orders
 
 ---
 
