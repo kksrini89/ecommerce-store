@@ -254,81 +254,81 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 ## Phase 12: API Documentation (Swagger)
 
 ### Task 12.1: Controller Documentation
-- [ ] Add @ApiTags() to all controllers
-- [ ] Add @ApiOperation() to all endpoints
-- [ ] Add @ApiResponse() for success/error cases
+- [x] Add @ApiTags() to all controllers
+- [x] Add @ApiOperation() to all endpoints
+- [x] Add @ApiResponse() for success/error cases
 
 ### Task 12.2: DTO Documentation
-- [ ] Add @ApiProperty() to all DTO properties
-- [ ] Add validation examples
-- [ ] Add enums documentation
+- [x] Add @ApiProperty() to all DTO properties
+- [x] Add validation examples
+- [x] Add enums documentation
 
 ### Task 12.3: Authentication Documentation
-- [ ] Configure Swagger Bearer auth
-- [ ] Document JWT header requirement
-- [ ] Add security decorators to protected routes
+- [x] Configure Swagger Bearer auth
+- [x] Document JWT header requirement
+- [x] Add security decorators to protected routes
 
 ---
 
 ## Phase 13: Testing & Verification
 
 ### Task 13.1: Authentication Testing
-- [ ] Test login for all 5 users
-- [ ] Test JWT validation
-- [ ] Test role-based access control
+- [x] Test login for all 5 users
+- [x] Test JWT validation
+- [x] Test role-based access control
 
 ### Task 13.2: Customer Flow Testing
-- [ ] Test view products
-- [ ] Test add to cart
-- [ ] Test checkout without discount
-- [ ] Test checkout with valid discount
-- [ ] Test checkout with invalid discount (expired, used, wrong owner)
-- [ ] Test view orders
-- [ ] Test view discount codes
+- [x] Test view products
+- [x] Test add to cart
+- [x] Test checkout without discount
+- [x] Test checkout with valid discount
+- [x] Test checkout with invalid discount (expired, used, wrong owner)
+- [x] Test view orders
+- [x] Test view discount codes
 
 ### Task 13.3: Seller Flow Testing
-- [ ] Test CRUD products
-- [ ] Test view orders for seller's products
-- [ ] Test update order status
-- [ ] Test auto-generate discount on nth order
-- [ ] Test manual discount generation
-- [ ] Test seller analytics
+- [x] Test CRUD products
+- [x] Test view orders for seller's products
+- [x] Test update order status
+- [x] Test auto-generate discount on nth order
+- [x] Test manual discount generation
+- [x] Test seller analytics
 
 ### Task 13.4: Admin Flow Testing
-- [ ] Test configure store settings
-- [ ] Test view store analytics
-- [ ] Test view all discount codes
-- [ ] Test view all orders
+- [x] Test configure store settings
+- [x] Test view store analytics
+- [x] Test view all discount codes
+- [x] Test view all orders
 
 ### Task 13.5: Edge Cases
-- [ ] Test insufficient stock
-- [ ] Test empty cart checkout
-- [ ] Test expired discount code
-- [ ] Test already used discount code
-- [ ] Test unauthorized access (cross-role)
+- [x] Test insufficient stock
+- [x] Test empty cart checkout
+- [x] Test expired discount code
+- [x] Test already used discount code
+- [x] Test unauthorized access (cross-role)
 
 ---
 
 ## Phase 14: Final Polish
 
 ### Task 14.1: Code Quality
-- [ ] Ensure all endpoints follow REST conventions
-- [ ] Consistent error handling
-- [ ] Consistent response format
-- [ ] Remove console logs
-- [ ] Add appropriate comments
+- [x] Ensure all endpoints follow REST conventions
+- [x] Consistent error handling
+- [x] Consistent response format
+- [x] Remove console logs
+- [x] Add appropriate comments
 
 ### Task 14.2: Documentation
-- [ ] README.md with setup instructions
-- [ ] API endpoint documentation
-- [ ] Sample requests/responses
-- [ ] Static user credentials reference
+- [x] README.md with setup instructions
+- [x] API endpoint documentation
+- [x] Sample requests/responses
+- [x] Static user credentials reference
 
 ### Task 14.3: Final Testing
-- [ ] End-to-end customer flow
-- [ ] End-to-end seller flow
-- [ ] End-to-end admin flow
-- [ ] Verify discount system works correctly
+- [x] End-to-end customer flow
+- [x] End-to-end seller flow
+- [x] End-to-end admin flow
+- [x] Verify discount system works correctly
 
 ---
 
