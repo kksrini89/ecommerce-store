@@ -89,12 +89,12 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 ## Phase 5: Products Module
 
 ### Task 5.1: Products Module Setup
-- [ ] Create ProductsModule
-- [ ] Create ProductsController
-- [ ] Create ProductsService
-- [ ] Implement getAllProducts() (customer API)
-- [ ] Implement getProductById()
-- [ ] DTOs: CreateProductDto, UpdateProductDto
+- [x] Create ProductsModule
+- [x] Create ProductsController
+- [x] Create ProductsService
+- [x] Implement getAllProducts() (customer API)
+- [x] Implement getProductById()
+- [x] DTOs: CreateProductDto, UpdateProductDto
 
 ### Task 5.2: Seller Product Management
 - [ ] POST /seller/products (create product)
