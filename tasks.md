@@ -335,46 +335,46 @@ This document lists all tasks required to complete the NestJS-based e-commerce b
 ## Phase 15: Unit Testing (Jest)
 
 ### Task 15.1: Jest Setup
-- [ ] Verify Jest is installed (included with NestJS)
-- [ ] Configure Jest for unit tests (exclude e2e)
-- [ ] Create test utilities and mocks
+- [x] Verify Jest is installed (included with NestJS)
+- [x] Configure Jest for unit tests (exclude e2e)
+- [x] Create test utilities and mocks
 
 ### Task 15.2: Auth Service Unit Tests
-- [ ] Test login with valid credentials
-- [ ] Test login with invalid credentials
-- [ ] Test JWT token generation
+- [x] Test login with valid credentials
+- [x] Test login with invalid credentials
+- [x] Test JWT token generation
 
 ### Task 15.3: Users Service Unit Tests
-- [ ] Test getUserById (happy path)
-- [ ] Test validateCredentials (happy path)
+- [x] Test getUserById (happy path)
+- [x] Test validateCredentials (happy path)
 
 ### Task 15.4: Products Service Unit Tests
-- [ ] Test createProduct (happy path)
-- [ ] Test getAllProducts (happy path)
-- [ ] Test updateProduct (happy path)
+- [x] Test createProduct (happy path)
+- [x] Test getAllProducts (happy path)
+- [x] Test updateProduct (happy path)
 
 ### Task 15.5: Cart Service Unit Tests
-- [ ] Test addToCart (happy path)
-- [ ] Test getCart (happy path)
-- [ ] Test removeFromCart (happy path)
+- [x] Test addToCart (happy path)
+- [x] Test getCart (happy path)
+- [x] Test removeFromCart (happy path)
 
 ### Task 15.6: Orders Service Unit Tests
-- [ ] Test checkout without discount (happy path)
-- [ ] Test checkout with valid discount (happy path)
-- [ ] Test updateOrderStatus (happy path)
+- [x] Test checkout without discount (happy path)
+- [x] Test checkout with valid discount (happy path)
+- [x] Test updateOrderStatus (happy path)
 
 ### Task 15.7: Discounts Service Unit Tests
-- [ ] Test generateDiscountCode (happy path)
-- [ ] Test validateDiscountCode (happy path)
-- [ ] Test auto-generate discount on nth order (happy path)
+- [x] Test generateDiscountCode (happy path)
+- [x] Test validateDiscountCode (happy path)
+- [x] Test auto-generate discount on nth order (happy path)
 
 ### Task 15.8: Analytics Service Unit Tests
-- [ ] Test calculateSellerAnalytics (happy path)
-- [ ] Test calculateStoreAnalytics (happy path)
+- [x] Test calculateSellerAnalytics (happy path)
+- [x] Test calculateStoreAnalytics (happy path)
 
 ### Task 15.9: Store Service Unit Tests
-- [ ] Test in-memory data operations
-- [ ] Test ID generation
+- [x] Test in-memory data operations
+- [x] Test ID generation
 
 ---
 
